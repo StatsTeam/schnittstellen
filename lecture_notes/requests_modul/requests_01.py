@@ -21,6 +21,8 @@ def get_temperature(locations: list):
             current_weather = data["current_weather"]
             temperature = current_weather["temperature"]
 
+            save_weather_data_to_db(location_name, latitude, longitude, temperature)
+
             temperature_storage.append({
                 "city": location_name,
                 "latitude": latitude,
@@ -38,7 +40,7 @@ def get_temperature(locations: list):
                 "temperature": None
             })
 
-    return temperature_storage  # 🔹 Am Ende die gesamte Liste zurückgeben!
+    return temperature_storage
     
 def get_location_name(latitude: float, longitude: float) -> str:
     """Ermittelt nur den Stadtnamen aus den Koordinaten mit der OpenStreetMap Nominatim API."""
@@ -124,16 +126,14 @@ def get_saved_weather():
 
 if __name__ == "__main__":
 
-    # locations = [
-    #     {"latitude": 52.52, "longitude": 13.41},  # Berlin
-    #     {"latitude": 48.85, "longitude": 2.35},   # Paris
-    #     {"latitude": 40.71, "longitude": -74.01}, # New York
-    #     {"latitude": 35.68, "longitude": 139.69}  # Tokio
-    # ]
-
-    # temperature_data = get_temperature(locations)
-    # print(json.dumps(temperature_data, indent=4, sort_keys=True, ensure_ascii=False))
+    locations = [
+        {"latitude": 52.52, "longitude": 13.41},  # Berlin
+        {"latitude": 48.85, "longitude": 2.35},   # Paris
+        {"latitude": 40.71, "longitude": -74.01}, # New York
+        {"latitude": 35.68, "longitude": 139.69}  # Tokio
+    ]
 
     create_database()
-    save_weather_data_to_db("test_city", 54.23, 23.32, 20)
-    print(json.dumps(get_saved_weather(), indent=4))
+    get_temperature(locations)
+    data_from_db = get_saved_weather()
+    print(json.dumps(data_from_db, indent=4, ensure_ascii=False))
