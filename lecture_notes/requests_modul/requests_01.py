@@ -1,5 +1,6 @@
 import requests
 import json
+import sqlite3
 
 def get_temperature(locations: list):
     """Holt die aktuelle Temperatur für eine Liste von Standorten mit Open-Meteo und speichert die Ergebnisse."""
@@ -68,15 +69,71 @@ def get_location_name(latitude: float, longitude: float) -> str:
     else:
         return "Fehler bei der Anfrage"
 
+def create_database():
+    """Erstellt die SQLite-Datenbank und die Tabelle wetterdaten, falls sie noch nicht existiert."""
+
+    # Verbindung zur Datenbank herstellen (erstellt Datei, falls nicht vorhanden):
+    conn = sqlite3.connect("wetter.db")
+    # Cursor erstellen (ein spezielles Objekt, das SQL-Befehle ausführt):
+    cursor = conn.cursor()
+    # Tabelle erstellen (falls nicht vorhanden), führt ein SQL-Statement aus:
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS wetterdaten (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            city TEXT,
+            latitude REAL,
+            longitude REAL,
+            temperature REAL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # Änderungen in der Datenbank speichern:
+    conn.commit()
+    # Verbindung beenden:
+    conn.close()
+    print("Datenbank und Tabelle wurden erfolgreich erstellt!")
+
+def save_weather_data_to_db(city, latitude, longitude, temperature):
+    """Speichert Wetterdaten in der SQLite-Datenbank wetter.db.""" 
+
+    conn = sqlite3.connect("wetter.db")
+    cursor = conn.cursor()
+
+    # SQL-Befehl zum Einfügen von Daten:
+    cursor.execute("""
+        INSERT INTO wetterdaten (city, latitude, longitude, temperature) 
+        VALUES (?, ?, ?, ?)
+    """, (city, latitude, longitude, temperature))
+
+    conn.commit() 
+    conn.close() 
+
+def get_saved_weather():
+    """Ruft alle gespeicherten Wetterdaten aus der Datenbank ab."""
+
+    conn = sqlite3.connect("wetter.db")
+    cursor = conn.cursor()
+
+    # Ausführen des SQL-Befehls:
+    cursor.execute("SELECT * FROM wetterdaten ORDER BY timestamp DESC")
+    data = cursor.fetchall()
+    conn.close()
+
+    return data
 
 if __name__ == "__main__":
 
-    locations = [
-        {"latitude": 52.52, "longitude": 13.41},  # Berlin
-        {"latitude": 48.85, "longitude": 2.35},   # Paris
-        {"latitude": 40.71, "longitude": -74.01}, # New York
-        {"latitude": 35.68, "longitude": 139.69}  # Tokio
-    ]
+    # locations = [
+    #     {"latitude": 52.52, "longitude": 13.41},  # Berlin
+    #     {"latitude": 48.85, "longitude": 2.35},   # Paris
+    #     {"latitude": 40.71, "longitude": -74.01}, # New York
+    #     {"latitude": 35.68, "longitude": 139.69}  # Tokio
+    # ]
 
-    temperature_data = get_temperature(locations)
-    print(json.dumps(temperature_data, indent=4, sort_keys=True, ensure_ascii=False))
+    # temperature_data = get_temperature(locations)
+    # print(json.dumps(temperature_data, indent=4, sort_keys=True, ensure_ascii=False))
+
+    create_database()
+    save_weather_data_to_db("test_city", 54.23, 23.32, 20)
+    print(json.dumps(get_saved_weather(), indent=4))
