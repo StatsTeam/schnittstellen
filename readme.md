@@ -99,10 +99,7 @@ Hier findest du Code-Beispiele, Erklärungen und Dokumentationen zu gängigen Me
         <a href="lecture_notes/Grundlagen_cURL.ipynb">3.3 Grundlagen von cURL</a>
       </li>
       <li>
-        <a href="lecture_notes/Projekt_Funktionsploter_lineare_Funktionen.ipynb">3.2 Aufbau von SOAP APIs</a>
-      </li>
-      <li>
-        <a href="lecture_notes/Projekt_Funktionsploter_lineare_Funktionen.ipynb">3.3 Aufbau von RESTful APIs</a>
+        <a href="lecture_notes/REST_APIs_mit_Python_Einführung_in_das_requests_Modul.ipynb">3.4 REST-APIs mit Python: Einführung in das requests Modul</a>
       </li>
     </ul>
 </ul>
