@@ -203,6 +203,31 @@ def get_weather_by_city(city_name: str):
         if conn:
             conn.close()
 
+def delete_weather_data_by_id(entry_id: int):
+    """Löscht einen Wetterdateneintrag anhand der ID aus der SQLite-Datenbank."""
+
+    try:
+        conn = sqlite3.connect("wetter.db")
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM wetterdaten WHERE id = ?", (entry_id,))
+        # Falls eine Zeile mit der gesuchten id gefunden wird, enthält data die Werte dieser Zeile als Tupel:
+        data = cursor.fetchone()
+
+        if data:
+            cursor.execute("DELETE FROM wetterdaten WHERE id = ?", (entry_id,))
+            conn.commit()
+            st.success(f"Wetterdatensatz mit ID {entry_id} wurde gelöscht.")
+        else:
+            st.warning(f"Keine Daten mit ID {entry_id} gefunden.")
+
+    except sqlite3.DatabaseError as e:
+        st.error(f"Fehler beim Löschen der Daten: {e}")
+
+    finally:
+        if conn:
+            conn.close()
+
 if __name__ == "__main__":
 
     create_database()
@@ -234,5 +259,19 @@ if __name__ == "__main__":
         st.dataframe(pd.DataFrame(city_data, columns=["id", "city", "latitude", "longitude", "temperature", "timestamp"]))
     else:
         st.warning(f"Keine gespeicherten Wetterdaten für {city_selection} gefunden.")
+
+    st.header("Wetterdaten löschen")
+    if not saved_data.empty:
+        delete_id = st.number_input("ID des zu löschenden Eintrags eingeben:", min_value=1, step=1)
+
+        if st.button("Eintrag löschen"):
+            delete_weather_data_by_id(delete_id)
+            st.session_state["delete_message"] = f"Eintrag mit ID {delete_id} wurde erfolgreich gelöscht!"
+            st.rerun()
+
+    # Erfolgsmeldung NACH `st.rerun()` anzeigen
+    if "delete_message" in st.session_state:
+        st.toast(st.session_state["delete_message"], icon="✅")
+        del st.session_state["delete_message"]
 
 
