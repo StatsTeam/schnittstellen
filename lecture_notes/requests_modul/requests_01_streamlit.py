@@ -2,6 +2,7 @@ import requests
 import json
 import sqlite3
 import streamlit as st
+import pandas as pd
 
 def get_temperature(latitude: float, longitude: float):
     """Holt die aktuelle Temperatur für eine Stadt mit Open-Meteo."""
@@ -148,17 +149,18 @@ def get_saved_weather():
         # Falls keine Daten vorhanden sind, leere Liste returnen:
         if not data:
             print("Keine Wetterdaten in der Datenbank gefunden.")
-            return []
+            return pd.DataFrame(columns=["id", "city", "latitude", "longitude", "temperature", "timestamp"])
 
-        return data
+        df = pd.DataFrame(data, columns=["id", "city", "latitude", "longitude", "temperature", "timestamp"])
+        return df  
     
     except sqlite3.OperationalError as e:
         print(f"⚠️ Fehler beim Abrufen der Daten: {e}")
-        return []
+        return pd.DataFrame()
     
     except sqlite3.DatabaseError as e:
         print(f"Datenbankfehler: {e}")
-        return []
+        return pd.DataFrame()
     
     finally:
         if conn:
@@ -181,7 +183,6 @@ def get_weather_by_city(city_name: str):
             ORDER BY timestamp DESC
         """, (city_name,))
 
-        # Alle gefundenen Einträge abrufen:
         data = cursor.fetchall()  
 
         if not data:
@@ -217,5 +218,21 @@ if __name__ == "__main__":
             save_weather_data_to_db(city, latitude, longitude, temperature)
             st.toast(f"Temperatur in {city}: {temperature}°C", icon="✅")
 
-    st.map()
+    st.header("Gespeicherte Wetterstandorte anzeigen")
+    saved_data = get_saved_weather()
+    if not saved_data.empty:
+        st.dataframe(saved_data)
+        st.map(saved_data[["latitude", "longitude"]])
+    else:
+        st.warning("Keine Wetterdaten in der Datenbank gefunden.")
+
+    st.header("Wetter für eine Stadt anzeigen")
+    city_selection = st.selectbox("Stadt auswählen", saved_data["city"].unique() if not saved_data.empty else ["Keine Daten verfügbar"])
+    if city_selection != "Keine Daten verfügbar":
+        city_data = get_weather_by_city(city_selection)
+    if city_data:
+        st.dataframe(pd.DataFrame(city_data, columns=["id", "city", "latitude", "longitude", "temperature", "timestamp"]))
+    else:
+        st.warning(f"Keine gespeicherten Wetterdaten für {city_selection} gefunden.")
+
 
