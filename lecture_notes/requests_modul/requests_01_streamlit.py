@@ -269,7 +269,7 @@ if __name__ == "__main__":
             st.session_state["delete_message"] = f"Eintrag mit ID {delete_id} wurde erfolgreich gelöscht!"
             st.rerun()
 
-    # Erfolgsmeldung NACH `st.rerun()` anzeigen
+    # Erfolgsmeldung NACH `st.rerun()` anzeigen:
     if "delete_message" in st.session_state:
         st.toast(st.session_state["delete_message"], icon="✅")
         del st.session_state["delete_message"]
