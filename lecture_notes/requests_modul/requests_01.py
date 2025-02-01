@@ -11,34 +11,40 @@ def get_temperature(locations: list):
     for location in locations:
         latitude = location["latitude"]
         longitude = location["longitude"]
-        location_name = get_location_name(latitude, longitude)
-
-        ENDPOINT_1 = f"v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true"
-        response = requests.get(BASE_URL + ENDPOINT_1)
-
-        if response.status_code == 200:
+        
+        try:
+            location_name = get_location_name(latitude, longitude)
+            ENDPOINT_1 = f"v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true"
+            response = requests.get(BASE_URL + ENDPOINT_1, timeout=5)
+            # Falls HTTP-Fehler (400-499, 500-599), Exception auslösen:
+            response.raise_for_status()
             data = response.json()
-            current_weather = data["current_weather"]
-            temperature = current_weather["temperature"]
 
-            save_weather_data_to_db(location_name, latitude, longitude, temperature)
 
-            temperature_storage.append({
-                "city": location_name,
-                "latitude": latitude,
-                "longitude": longitude,
-                "temperature": temperature
-            })
-            print(f"Temperatur in {location_name}: {temperature}°C")
-            
-        else:
-            print(f"Fehler beim Abrufen der Wetterdaten für {location_name}")
-            temperature_storage.append({
-                "city": location_name,
-                "latitude": latitude,
-                "longitude": longitude,
-                "temperature": None
-            })
+
+            if "current_weather" in data:
+                current_weather = data["current_weather"]
+                temperature = current_weather["temperature"]
+                save_weather_data_to_db(location_name, latitude, longitude, temperature)
+
+                temperature_storage.append({
+                    "city": location_name,
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "temperature": temperature
+                })
+                print(f"Temperatur in {location_name}: {temperature}°C")
+
+            else:
+                print(f"Keine Wetterdaten für {location_name} erhalten.")
+        except requests.exceptions.Timeout:
+            print(f"Fehler: Zeitüberschreitung für {location_name}")
+        except requests.exceptions.RequestException as e:
+            print(f"Netzwerkfehler bei {location_name}: {e}")
+        except json.JSONDecodeError:
+            print(f"Fehler: Ungültige JSON-Antwort für {location_name}")
+        except Exception as e:
+            print(f"Unerwarteter Fehler bei {location_name}: {e}")
 
     return temperature_storage
     
@@ -124,6 +130,24 @@ def get_saved_weather():
 
     return data
 
+def get_weather_by_city(city_name: str):
+    """Holt Wetterdaten aus der SQLite-Datenbank für eine bestimmte Stadt."""
+
+    conn = sqlite3.connect("wetter.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT * FROM wetterdaten 
+        WHERE city = ? 
+        ORDER BY timestamp DESC
+    """, (city_name,))
+
+    # Alle gefundenen Einträge abrufen:
+    data = cursor.fetchall()  
+    conn.close() 
+
+    return data
+
 if __name__ == "__main__":
 
     locations = [
@@ -137,3 +161,5 @@ if __name__ == "__main__":
     get_temperature(locations)
     data_from_db = get_saved_weather()
     print(json.dumps(data_from_db, indent=4, ensure_ascii=False))
+    berlin_data = get_weather_by_city("Berlin")
+    print("berlin_data:", json.dumps(berlin_data, indent=4, ensure_ascii=False))
