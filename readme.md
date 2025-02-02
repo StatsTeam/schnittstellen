@@ -101,6 +101,9 @@ Hier findest du Code-Beispiele, Erklärungen und Dokumentationen zu gängigen Me
       <li>
         <a href="lecture_notes/REST_APIs_mit_Python_Einführung_in_das_requests_Modul.ipynb">3.4 REST-APIs mit Python: Einführung in das requests Modul</a>
       </li>
+      <li>
+        <a href="lecture_notes/Python_requests_Modul_im_Detail.ipynb">3.5 Python requests-Modul im Detail</a>
+      </li>
     </ul>
 </ul>
 
