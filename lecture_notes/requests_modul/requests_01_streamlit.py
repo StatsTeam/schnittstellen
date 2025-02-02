@@ -273,5 +273,3 @@ if __name__ == "__main__":
     if "delete_message" in st.session_state:
         st.toast(st.session_state["delete_message"], icon="✅")
         del st.session_state["delete_message"]
-
-
