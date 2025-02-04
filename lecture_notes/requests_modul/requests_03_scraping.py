@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 from typing import Optional
+import matplotlib.pyplot as plt
+import streamlit as st
+import seaborn as sns
 
 BASE_URL: str = "https://www.scrapethissite.com/pages/forms/"
 PAGE_PARAM: str = "?page_num="
@@ -85,6 +88,71 @@ def save_data_to_csv(df: pd.DataFrame, filename: str = "nhl_teams_all_pages.csv"
     else:
         print("Keine Daten zum Speichern vorhanden!")
 
+# Ab hier Datenanalyse
+
+def load_data(file_name: str) -> pd.DataFrame:
+    """Lädt die CSV-Datei und gibt einen DataFrame zurück."""
+    df = pd.read_csv(file_name)
+    return df
+
+def basic_statistics(df: pd.DataFrame) -> None:
+    """Gibt grundlegende Statistiken der Daten aus."""
+    st.write("## Allgemeine Statistik")
+    st.write(df.describe())
+
+def avg_wins_losses_per_year(df: pd.DataFrame) -> None:
+    """Zeigt die durchschnittlichen Siege und Niederlagen pro Jahr an und visualisiert sie in Streamlit."""
+    yearly_avg = df.groupby("Jahr")[["Siege", "Niederlagen"]].mean()
+    
+    fig, ax = plt.subplots(figsize=(10,5))
+    ax.plot(yearly_avg.index, yearly_avg["Siege"], marker='o', label="Durchschnittliche Siege")
+    ax.plot(yearly_avg.index, yearly_avg["Niederlagen"], marker='o', label="Durchschnittliche Niederlagen")
+    
+    ax.set_title("Durchschnittliche Siege und Niederlagen pro Jahr")
+    ax.set_xlabel("Jahr")
+    ax.set_ylabel("Anzahl")
+    ax.legend()
+    ax.grid()
+    
+    st.pyplot(fig)
+
+def correlation_matrix(df: pd.DataFrame) -> None:
+    """Zeigt eine Heatmap der Korrelationen zwischen Zahlenwerten in Streamlit."""
+    numeric_df = df[["Siege", "Niederlagen", "GF", "GA", "+/-"]].astype(float)
+    fig, ax = plt.subplots(figsize=(8,6))
+    sns.heatmap(numeric_df.corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
+    ax.set_title("Korrelationsmatrix")
+    st.pyplot(fig)
+
+def top_teams_by_goal_difference(df: pd.DataFrame, top_n: int = 10) -> None:
+    """Zeigt die Top-N-Teams mit der besten und schlechtesten Tordifferenz in Streamlit."""
+    df_sorted = df.sort_values(by=["+/-"], ascending=False)
+    top_teams = df_sorted.head(top_n)
+    worst_teams = df_sorted.tail(top_n)
+    
+    fig, ax = plt.subplots(figsize=(10,5))
+    sns.barplot(x=top_teams["Team"], y=top_teams["+/-"], palette="Blues", ax=ax)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+    ax.set_title("Top 10 Teams mit bester Tordifferenz")
+    st.pyplot(fig)
+    
+    fig, ax = plt.subplots(figsize=(10,5))
+    sns.barplot(x=worst_teams["Team"], y=worst_teams["+/-"], palette="Reds", ax=ax)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
+    ax.set_title("Top 10 Teams mit schlechtester Tordifferenz")
+    st.pyplot(fig)
+
 if __name__ == "__main__":
-    df: Optional[pd.DataFrame] = scrape_team_data()
-    save_data_to_csv(df)
+    df = load_data("nhl_teams_all_pages.csv")
+
+    st.title("NHL Team Statistik Dashboard")
+
+    if st.button("Allgemeine Statistik anzeigen"):
+        basic_statistics(df)
+    if st.button("Durchschnittliche Siege und Niederlagen pro Jahr anzeigen"):
+        avg_wins_losses_per_year(df)
+    if st.button("Korrelationsmatrix anzeigen"):
+        correlation_matrix(df)
+    if st.button("Top Teams nach Tordifferenz anzeigen"):
+        top_teams_by_goal_difference(df)
+
