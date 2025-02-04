@@ -104,6 +104,9 @@ Hier findest du Code-Beispiele, Erklärungen und Dokumentationen zu gängigen Me
       <li>
         <a href="lecture_notes/Python_requests_Modul_im_Detail.ipynb">3.5 Python requests-Modul im Detail</a>
       </li>
+        <li>
+        <a href="lecture_notes/Python_requests_Modul_Web_Scraping.ipynb">3.6 Python requests-Modul: Web Scraping</a>
+      </li>
     </ul>
 </ul>
 
