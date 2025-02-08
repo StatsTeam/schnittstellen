@@ -2,10 +2,10 @@ from fastapi import FastAPI, Body
 
 BOOKS = [
     {"title": "Title One", "author": "Author One", "category": "science"},
-    {"title": "Title Two", "author": "Author Two", "category": "history"},
-    {"title": "Title Three", "author": "Author Three", "category": "math"},
-    {"title": "Title Four", "author": "Author One", "category": "science"},
-    {"title": "Title Six", "author": "Author Six", "category": "math"}
+    {"title": "Title Two", "author": "Author Two", "category": "science"},
+    {"title": "Title Three", "author": "Author Three", "category": "history"},
+    {"title": "Title Four", "author": "Author One", "category": "math"},
+    {"title": "Title Five", "author": "Author Five", "category": "math"}
 ]
 
 app = FastAPI()
@@ -39,34 +39,6 @@ async def read_by_category_and_author_query(book_author: str, category: str):
         if book["author"].casefold() == book_author.casefold() and book["category"].casefold() == category.casefold():
             books_to_return.append(book)
     return books_to_return
-
-@app.get("/books/title_and_author/")
-async def read_by_title_and_author(title: str, author: str):
-    books_to_return = []
-    for book in BOOKS:
-        if book["title"].casefold() == title.casefold() and book["author"].casefold() == author.casefold():
-            books_to_return.append(book)
-    return books_to_return
-
-@app.get("/books/sorted/")
-async def get_sorted_books(sort_by: str = "title"):
-    if sort_by == "title":
-        # Sort books by title:
-        for i in range(len(BOOKS)):
-            for j in range(i + 1, len(BOOKS)):
-                if BOOKS[i]["title"] > BOOKS[j]["title"]:
-                    BOOKS[i], BOOKS[j] = BOOKS[j], BOOKS[i]
-    elif sort_by == "category":
-        # Sort books by category:
-        for i in range(len(BOOKS)):
-            for j in range(i + 1, len(BOOKS)):
-                if BOOKS[i]["category"] > BOOKS[j]["category"]:
-                    BOOKS[i], BOOKS[j] = BOOKS[j], BOOKS[i]
-    else:
-        return {"error": "Invalid sort_by value. Use 'title' or 'category'."}
-    
-    return {"sorted_books": BOOKS}
-
 
 @app.post("/books/create_book")
 async def create_book(book_request=Body()):

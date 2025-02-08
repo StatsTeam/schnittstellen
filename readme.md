@@ -111,6 +111,17 @@ Hier findest du Code-Beispiele, Erklärungen und Dokumentationen zu gängigen Me
         <a href="lecture_notes/Python_requests_Modul_Web_Scraping_project_01.ipynb">3.7 Python requests-Modul: Web Scraping Projekt</a>
       </li>
     </ul>
+      <li>
+      <a href="lecture_notes/Grundlagen_der_API_Kommunikation.ipynb">4. FastAPI</a>
+    </li>
+    <ul>
+      <li>
+        <a href="lecture_notes/Einführung_in_FastAPI.ipynb">4.1 Einführung in FastAPI</a>
+      </li>
+      <li>
+        <a href="lecture_notes/Einführung_in_FastAPI_Aufgaben.ipynb">4.2 Einführung in FastAPI: Aufgaben</a>
+      </li>
+    </ul>
 </ul>
 
 
