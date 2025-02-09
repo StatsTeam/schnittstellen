@@ -121,6 +121,9 @@ Hier findest du Code-Beispiele, Erklärungen und Dokumentationen zu gängigen Me
       <li>
         <a href="lecture_notes/Einführung_in_FastAPI_Aufgaben.ipynb">4.2 Einführung in FastAPI: Aufgaben</a>
       </li>
+      <li>
+        <a href="lecture_notes/Grundlegende_FastAPI_Konzepte.ipynb">4.3 Grundlegende FastAPI Konzepte: Data Validation, Exceptions</a>
+      </li>
     </ul>
 </ul>
 
