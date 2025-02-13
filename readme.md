@@ -124,6 +124,9 @@ Hier findest du Code-Beispiele, Erklärungen und Dokumentationen zu gängigen Me
       <li>
         <a href="lecture_notes/Grundlegende_FastAPI_Konzepte.ipynb">4.3 Grundlegende FastAPI Konzepte: Data Validation, Exceptions</a>
       </li>
+      <li>
+        <a href="lecture_notes/Grundlegende_FastAPI_Konzepte_01.ipynb">4.4 Grundlegende FastAPI Konzepte: Database, Authentication, Authorization, Hashing Passwords</a>
+      </li>
     </ul>
 </ul>
 
